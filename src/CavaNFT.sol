@@ -142,6 +142,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
     ///////  External and public All users functions     ///////
     ////////////////////////////////////////////////////////////
 
+    /**
+     * @dev Functon to mint NFTs, the amount is the amount of collection nft staked in the stakingCava contract.
+     */
     function mint() external nonReentrant {
         CavaStaking cava = CavaStaking(s_CavaStakingAddress);
         uint256 quantity = cava.getUserTotalStaked(msg.sender);
@@ -157,6 +160,10 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         _safeMint(msg.sender, amount);
     }
 
+    /**
+     * @dev Function to purchase NFTs that are = to bottles. Can only purchase bottles in the Blanco phase.
+     * @param quantity amount of bottles someone wants to purchase.
+     */
     function purchaseExtraTequilaBottle(uint256 quantity) public payable nonReentrant {
         if (s_currentState != AgingState.Blanco) revert CavaNFT__PurchaseNotAllowed();
         if (s_bottleMintPrice == 0) revert CavaNFT__ZeroPriceBottle();
@@ -177,6 +184,11 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         } 
     }
 
+    /**
+     * 
+     * @param _tokens amount of tokens in array of tokens Ids that will be used to take a decition
+     * @param _choice the choice of those tokens, sell or bottle
+     */
     function userTokenDecision(
         uint256[] calldata _tokens,
         uint256 _choice
@@ -216,6 +228,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         }
     }
 
+    /**
+     * @dev function to claim ape cryptocurrency if you chosed to sell reposado bottles
+     */
     function claimReposadoApe(uint256[] calldata tokens) public nonReentrant {
         if (s_reposadoPrice <= 0) revert CavaNFT__ReposadoPriceNotSet();
         
@@ -250,6 +265,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         delete s_tokensToBurn;
     }
 
+    /**
+     * @dev function to claim ape cryptocurrency if you chosed to sell anejo bottles
+     */
     function claimAnejoApe(uint256[] calldata tokens) public nonReentrant {
         if (s_anejoPrice <= 0) revert CavaNFT__AnejoPriceNotSet();
         
@@ -284,6 +302,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         delete s_tokensToBurn;
     }
 
+    /**
+     * @dev function to claim physical anejo Bottle if you chosed to bottle anejo bottles
+     */
     function claimAnejoBottle(uint256[] calldata tokens) public nonReentrant {
         uint256 anejoTotalBottles;
         for (uint256 i; i < tokens.length; i++){
@@ -307,6 +328,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
 
     }
 
+    /**
+     * @dev function to claim physical reposado Bottle if you chosed to bottle reposado bottles
+     */
     function claimReposadoBottle(uint256[] calldata tokens) public nonReentrant {
         uint256 reposadoTotalBottles;
         for (uint256 i; i < tokens.length; i++){
@@ -336,6 +360,10 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
 
     //----- Can only be called once by the owner to set the Cava Stake Contract to interact with. -----//
     
+    /**
+     * 
+     * @param stakingAddress address of the StakingCava contract to communicate with. Only owner can call the function.
+     */
     function setStakingAddress(address stakingAddress) public onlyOwner {
         if (s_stakingLockAddress == true) revert CavaNFT__NoChangeAllowed();
         s_CavaStakingAddress = stakingAddress;
@@ -344,6 +372,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
 
     //----- Change the state when certain time has passed. -----//
     
+    /**
+     * @dev function to change the global aging state in the contract. Only owner can call the function.
+     */
     function advanceState() external onlyOwner {
         uint256 timePassed = block.timestamp;
         uint256 time = timePassed - s_startingTime;
@@ -358,10 +389,16 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
 
     //----- Set mint price to purchase bottle / NFTs and change the max amount of the extra bottle supplies. -----//
     
+    /**
+     * @dev function to set mint price for purchasing bottles = NFTs. Only owner can call the function.
+     */
     function changeBottleMintPrice(uint256 quantity) public onlyOwner {
         s_bottleMintPrice = quantity;
     }
 
+    /**
+     * @dev Function to change the max extra bottle supply. Only owner can call the function.
+     */
     function changeExtraBottleSupply(uint256 quantity) public onlyOwner {
         if (quantity < s_TotalExtraBottleSupply)
             revert CavaNFT__IncorrectAmount();
@@ -370,16 +407,25 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
 
     //----- set Price functions used for the users to obtain money of bottles selled! -----//
 
+    /**
+     * @dev Function to set the reposado price for users to claim ape. Only owner can call the function.
+     */
     function setReposadoPrice(uint256 _price) public onlyOwner {
         s_reposadoPrice = _price;
     }
 
+    /**
+     * @dev Function to set the anejo price for users to claim ape. Only owner can call the function.
+     */
     function setAnejoPrice(uint256 _price) public onlyOwner {
         s_anejoPrice = _price;
     }
 
     //----- Withdraw functions used as emergency. -----//
     
+    /**
+     * @dev Function to withdraw ape send to contract for reposado. Only owner can call the function.
+     */
     function withdrawReposado() public onlyOwner nonReentrant {
         uint256 amount = TequilaBalance["REPOSADO"];
         
@@ -389,6 +435,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         }
     }
 
+    /**
+     * @dev Function to withdraw ape send to contract for anejo. Only owner can call the function.
+     */
     function withdrawAnejo() public onlyOwner nonReentrant {
         uint256 amount = TequilaBalance["ANEJO"];
         
@@ -398,6 +447,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         }
     }
 
+    /**
+     * @dev Function to withdraw ape send to contract for bottles. Only owner can call the function.
+     */
     function withdrawABottles() public onlyOwner nonReentrant {
         uint256 amount = TequilaBalance["BOTTLES"];
         
@@ -411,6 +463,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
     ////////////    TokenURI Dynamic Svg Function     //////////
     ////////////////////////////////////////////////////////////
 
+    /**
+     * @param tokenId of NFTs collection to recover the URI.
+     */
     function tokenURI(
         uint256 tokenId
     ) public view override returns (string memory) {
@@ -577,6 +632,9 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
     ///////  External and public view/pure functions     ///////
     ////////////////////////////////////////////////////////////
 
+    /**
+     * return the global state of aging in the smart contract. Returns normal uint256.
+     */
     function returnTequilaState() external view returns (uint256) {
         if (s_currentState == AgingState.Blanco) {
             return 0;
@@ -587,50 +645,87 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
         }
     }
 
+    /**
+     * Function to return the information of each token (stage, choice, noChange).
+     */
     function getTokenInfo(uint256 _tokenId) public view returns(Token memory) {
         return s_tokenState[_tokenId];
     }
 
+    /**
+     * Function to return the Max Supply of the extra bottles por purchase.
+     */
     function MaxExtraBottleSupply() public view returns(uint256) {
         return s_MaxExtraBottleSupply;
     }
 
+    /**
+     * Returns the amount of bottles purchased.
+     */
     function ExtraBottleSupply() public view returns(uint256) {
         return s_TotalExtraBottleSupply;
     }
 
+    /**
+     * Returns the bottle mint/purchase price.
+     */
     function BottleMintprice() public view returns(uint256) {
         return s_bottleMintPrice;
     }
 
+    /**
+     * Returns the sell price of reposado.
+     */
     function ReposadoSellprice() public view returns(uint256) {
         return s_reposadoPrice;
     }
 
+    /**
+     * Returns the sell price of anejo.
+     */
     function AnejoSellprice() public view returns(uint256) {
         return s_anejoPrice;
     }
 
+    /**
+     * Gives the current global state of aging with the enum values.
+     */
     function currentTequilaState() public view returns(AgingState) {
         return s_currentState;
     }    
 
+    /**
+     * Returns the amount of ape balance set for reposado claim.
+     */
     function reposadoBalance() public view returns(uint256){
         return TequilaBalance["REPOSADO"];
     }
 
+    /**
+     * Returns the amount of ape balance set for anejo claim.
+     */
     function anejoBalance() public view returns(uint256){
         return TequilaBalance["ANEJO"];
     }
 
+    /**
+     * Returns the amount of ape balance set for bottles.
+     */
     function bottlesBalance() public view returns(uint256){
         return TequilaBalance["BOTTLES"];
     }
 
+    /**
+     * Returns the smart contract balance.
+     */
     function getBalance() public view returns(uint256) {
         return address(this).balance;
     }
 
+    /**
+     * Checks if the smart contract balance is equal to the sum of reposadoBalance, 
+     * anejoBalance and bottlesbalance.
+     */
     function verifyBalances() public view returns (bool){
         return getBalance() == (reposadoBalance() + anejoBalance() + bottlesBalance());
     }
@@ -639,18 +734,27 @@ contract CavaNFT is ERC721A, Ownable, ReentrancyGuard {
     ///////  Public ape transfer to contract functions   ///////
     ////////////////////////////////////////////////////////////
 
+    /**
+     * @dev function to send ape to the contract and stored it as REPOSADO
+     */
     function transferReposadoMoneyToContract() public payable {
         if (msg.value <= 0) revert CavaNFT__NoApeIsBeingTranferred();
         TequilaBalance["REPOSADO"] += msg.value;
         emit ReposadoMoneyTransferredToContract(msg.sender, msg.value);
     }
 
+    /**
+     * @dev function to send ape to the contract and stored it as ANEJO
+     */
     function transferAnejoMoneyToContract() public payable {
         if (msg.value <= 0) revert CavaNFT__NoApeIsBeingTranferred();
         TequilaBalance["ANEJO"] += msg.value;
         emit AnejoMoneyTransferredToContract(msg.sender, msg.value);
     }
 
+    /**
+     * @dev function to send ape to the contract and stored it as BOTTLES
+     */
     function transferMoneyToContract() public payable {
         if (msg.value <= 0) revert CavaNFT__NoApeIsBeingTranferred();
         TequilaBalance["BOTTLES"] += msg.value;
