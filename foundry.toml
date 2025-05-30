@@ -1,0 +1,17 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+optimizer = true
+remappings=[
+    '@pythnetwork/pyth-sdk-solidity/=node_modules/@pythnetwork/pyth-sdk-solidity'
+]
+
+viaIR = true
+
+ffi = false #to run commands like minting, it's better to leave it on false
+fs_permissions = [{access = "read", path = "./img/"}, {access = "read", path = "./broadcast/"}]
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+# --constructor-args $(cast abi-encode "constructor(string,string,uint256,uint256)" "ForgeUSD" "FUSD" 18 1000000000000000000000) 
+# --compiler-version v0.8.10+commit.fc410830
