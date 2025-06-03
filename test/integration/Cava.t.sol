@@ -378,6 +378,36 @@ contract Cava is Test {
         assertEq(nft.balanceOf(USER), 10);
         assertEq(cavaNFT.balanceOf(USER), 3);
     }
+
+    function testTransferMoneyOfThreeMethodsIsEqualToContractBalance() public {
+        
+        uint256 reposadoValue = SEND_VALUE;
+        uint256 anejoValue = SEND_VALUE * 2;
+        uint256 bottlesValue = SEND_VALUE * 3;
+        
+        vm.prank(USER);
+        cavaNFT.transferReposadoMoneyToContract{value: reposadoValue}();
+        cavaNFT.transferAnejoMoneyToContract{value: anejoValue}();
+        cavaNFT.transferMoneyToContract{value: bottlesValue}();
+
+        uint256 reposadoBalance = cavaNFT.reposadoBalance();
+        uint256 anejoBalance = cavaNFT.anejoBalance();
+        uint256 bottlesBalance = cavaNFT.bottlesBalance();
+        uint256 totalBalance = reposadoBalance + anejoBalance + bottlesBalance;
+        uint256 balance = cavaNFT.getBalance();
+        bool checkBalance = cavaNFT.verifyBalances();
+
+        console.log("Reposado balance: ", reposadoBalance);
+        console.log("Anejo balance: ", anejoBalance);
+        console.log("Bottles balance: ", bottlesBalance);
+        console.log("Total Balance: ", totalBalance);
+        console.log("Contract Balance: ", balance);
+
+        assertEq(totalBalance, balance);
+        assertTrue(checkBalance);
+
+    }
+
 }
 
 /*
